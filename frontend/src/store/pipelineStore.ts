@@ -32,6 +32,7 @@ interface PipelineState {
   results: PipelineResult | null;
   isRunning: boolean;
   dataPreviewHeight: number;
+  sidePanelWidth: number;
 
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
@@ -42,6 +43,7 @@ interface PipelineState {
   run: () => Promise<void>;
   addNode: (type: string, position: { x: number; y: number }) => void;
   setDataPreviewHeight: (h: number) => void;
+  setSidePanelWidth: (w: number) => void;
 }
 
 let nextId = 10;
@@ -87,6 +89,7 @@ export const usePipelineStore = create<PipelineState>((set, get) => ({
   results: null,
   isRunning: false,
   dataPreviewHeight: 25,
+  sidePanelWidth: 340,
 
   onNodesChange: (changes) => {
     set({ nodes: applyNodeChanges(changes, get().nodes) as PipelineNode[] });
@@ -158,4 +161,5 @@ export const usePipelineStore = create<PipelineState>((set, get) => ({
     set({ nodes: [...get().nodes, newNode] });
   },
   setDataPreviewHeight: (h) => set({ dataPreviewHeight: Math.max(10, Math.min(50, h)) }),
+  setSidePanelWidth: (w) => set({ sidePanelWidth: Math.max(280, Math.min(800, w)) }),
 }));

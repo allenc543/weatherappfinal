@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { usePipelineStore } from './store/pipelineStore';
 import PipelineCanvas from './components/PipelineCanvas';
 import ParametersPanel from './components/ParametersPanel';
@@ -11,10 +11,32 @@ export default function App() {
   const run = usePipelineStore((s) => s.run);
   const isRunning = usePipelineStore((s) => s.isRunning);
   const dataPreviewHeight = usePipelineStore((s) => s.dataPreviewHeight);
+  const sidePanelWidth = usePipelineStore((s) => s.sidePanelWidth);
+  const setSidePanelWidth = usePipelineStore((s) => s.setSidePanelWidth);
+  const [isDraggingSide, setIsDraggingSide] = useState(false);
 
   useEffect(() => {
     loadNodeTypes();
   }, [loadNodeTypes]);
+
+  const onSideMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDraggingSide(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isDraggingSide) return;
+    const onMouseMove = (e: MouseEvent) => {
+      setSidePanelWidth(window.innerWidth - e.clientX);
+    };
+    const onMouseUp = () => setIsDraggingSide(false);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [isDraggingSide, setSidePanelWidth]);
 
   return (
     <div className="h-screen w-screen flex flex-col bg-gray-950 text-white">
@@ -42,8 +64,18 @@ export default function App() {
           <PipelineCanvas />
         </div>
 
+        {/* Drag handle for side panel */}
+        <div
+          onMouseDown={onSideMouseDown}
+          className="w-1.5 flex-shrink-0 bg-gray-800 hover:bg-blue-500 cursor-ew-resize transition-colors"
+          style={isDraggingSide ? { background: '#3b82f6' } : undefined}
+        />
+
         {/* Right: Parameters + Results */}
-        <div className="w-80 flex-shrink-0 border-l border-gray-800 flex flex-col">
+        <div
+          className="flex-shrink-0 flex flex-col overflow-hidden"
+          style={{ width: sidePanelWidth }}
+        >
           <div className="flex-1 border-b border-gray-800 overflow-hidden">
             <ParametersPanel />
           </div>
