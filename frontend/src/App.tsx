@@ -49,7 +49,7 @@ export default function App() {
           <NodePalette />
         </div>
         <button
-          onClick={run}
+          onClick={() => run()}
           disabled={isRunning}
           className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-medium rounded-lg transition-colors"
         >

@@ -40,7 +40,8 @@ interface PipelineState {
   setSelectedNode: (id: string | null) => void;
   setNodeParam: (nodeId: string, paramName: string, value: unknown) => void;
   loadNodeTypes: () => Promise<void>;
-  run: () => Promise<void>;
+  run: (targetNode?: string) => Promise<void>;
+  runNode: (nodeId: string) => Promise<void>;
   addNode: (type: string, position: { x: number; y: number }) => void;
   setDataPreviewHeight: (h: number) => void;
   setSidePanelWidth: (w: number) => void;
@@ -121,7 +122,7 @@ export const usePipelineStore = create<PipelineState>((set, get) => ({
       }),
     });
   },
-  run: async () => {
+  run: async (targetNode?: string) => {
     set({ isRunning: true, results: null });
     try {
       const { nodes, edges } = get();
@@ -136,13 +137,16 @@ export const usePipelineStore = create<PipelineState>((set, get) => ({
         target: e.target,
         targetHandle: e.targetHandle || 'input',
       }));
-      const result = await runPipeline(payload, edgePayload);
+      const result = await runPipeline(payload, edgePayload, targetNode);
       set({ results: result });
     } catch (err) {
       console.error('Pipeline run failed:', err);
     } finally {
       set({ isRunning: false });
     }
+  },
+  runNode: async (nodeId: string) => {
+    await get().run(nodeId);
   },
   addNode: (type, position) => {
     const meta = get().nodeTypes.find((t) => t.node_type === type);

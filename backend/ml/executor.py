@@ -30,16 +30,39 @@ def topological_sort(nodes: list[dict], edges: list[dict]) -> list[str]:
     return order
 
 
-def run_pipeline(pipeline: dict) -> dict[str, Any]:
+def get_upstream_nodes(target_id: str, nodes: list[dict], edges: list[dict]) -> set[str]:
+    """Find all nodes upstream of (and including) target_id via BFS backwards."""
+    reverse_graph: dict[str, list[str]] = defaultdict(list)
+    for edge in edges:
+        reverse_graph[edge["target"]].append(edge["source"])
+
+    needed = set()
+    queue = deque([target_id])
+    while queue:
+        nid = queue.popleft()
+        if nid in needed:
+            continue
+        needed.add(nid)
+        for upstream in reverse_graph.get(nid, []):
+            if upstream not in needed:
+                queue.append(upstream)
+    return needed
+
+
+def run_pipeline(pipeline: dict, target_node: str | None = None) -> dict[str, Any]:
     """Execute a pipeline graph and return results per node.
 
-    pipeline = {
-        "nodes": [{"id": "n1", "type": "data_source", "params": {...}}, ...],
-        "edges": [{"source": "n1", "sourceHandle": "output", "target": "n2", "targetHandle": "input"}, ...]
-    }
+    If target_node is specified, only run that node and its upstream dependencies.
     """
     nodes = pipeline["nodes"]
     edges = pipeline["edges"]
+
+    # Filter to subgraph if target specified
+    if target_node:
+        needed = get_upstream_nodes(target_node, nodes, edges)
+        nodes = [n for n in nodes if n["id"] in needed]
+        edges = [e for e in edges if e["source"] in needed and e["target"] in needed]
+
     order = topological_sort(nodes, edges)
 
     node_map = {n["id"]: n for n in nodes}

@@ -43,7 +43,12 @@ export async function fetchCities(): Promise<string[]> {
 export async function runPipeline(
   nodes: { id: string; type: string; params: Record<string, unknown> }[],
   edges: { source: string; sourceHandle: string; target: string; targetHandle: string }[],
+  targetNode?: string,
 ): Promise<PipelineResult> {
-  const resp = await api.post('/pipeline/run', { nodes, edges });
+  const resp = await api.post('/pipeline/run', {
+    nodes,
+    edges,
+    target_node: targetNode ?? null,
+  });
   return resp.data;
 }

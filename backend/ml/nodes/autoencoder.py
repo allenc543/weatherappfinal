@@ -83,8 +83,8 @@ class AutoencoderNode(MLNode):
 
     def execute(self, inputs: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
         data = inputs.get("input", {})
-        train_features = data["train_features"]
-        test_features = data["test_features"]
+        train_features = data["train_X"]
+        test_features = data["test_X"]
 
         latent_dim = int(params.get("latent_dim", 5))
         epochs = int(params.get("epochs", 50))
@@ -125,10 +125,10 @@ class AutoencoderNode(MLNode):
 
         return {
             "output": {
-                "train_encoded": train_encoded.cpu().numpy(),
-                "test_encoded": test_encoded.cpu().numpy(),
-                "train_target": data["train_target"],
-                "test_target": data["test_target"],
+                "train_X": train_encoded.cpu().numpy(),
+                "test_X": test_encoded.cpu().numpy(),
+                "train_y": data["train_y"],
+                "test_y": data["test_y"],
                 "train_dates": data.get("train_dates"),
                 "test_dates": data.get("test_dates"),
             },

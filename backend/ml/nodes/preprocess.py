@@ -102,10 +102,10 @@ class PreprocessNode(MLNode):
 
         return {
             "output": {
-                "train_features": train_features,
-                "test_features": test_features,
-                "train_target": train_df["temp_max"].values.astype(np.float32),
-                "test_target": test_df["temp_max"].values.astype(np.float32),
+                "train_X": train_features,
+                "test_X": test_features,
+                "train_y": train_df["temp_max"].values.astype(np.float32),
+                "test_y": test_df["temp_max"].values.astype(np.float32),
                 "feature_names": all_feature_cols,
                 "scaler": scaler,
                 "train_dates": train_df["date"].values,

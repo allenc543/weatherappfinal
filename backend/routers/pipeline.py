@@ -10,12 +10,16 @@ router = APIRouter(prefix="/api/pipeline", tags=["pipeline"])
 class PipelineRequest(BaseModel):
     nodes: list[dict[str, Any]]
     edges: list[dict[str, Any]]
+    target_node: str | None = None
 
 
 @router.post("/run")
 async def run(req: PipelineRequest):
     try:
-        results = run_pipeline({"nodes": req.nodes, "edges": req.edges})
+        results = run_pipeline(
+            {"nodes": req.nodes, "edges": req.edges},
+            target_node=req.target_node,
+        )
         return {"status": "ok", "results": results}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

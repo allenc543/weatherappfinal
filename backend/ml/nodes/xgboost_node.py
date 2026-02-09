@@ -15,7 +15,7 @@ class XGBoostNode(MLNode):
 
     @property
     def input_ports(self):
-        return [{"name": "input", "datatype": "encoded"}]
+        return [{"name": "input", "datatype": "features"}]
 
     @property
     def output_ports(self):
@@ -60,10 +60,10 @@ class XGBoostNode(MLNode):
 
     def execute(self, inputs: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
         data = inputs.get("input", {})
-        train_X = data["train_encoded"]
-        test_X = data["test_encoded"]
-        train_y = data["train_target"]
-        test_y = data["test_target"]
+        train_X = data["train_X"]
+        test_X = data["test_X"]
+        train_y = data["train_y"]
+        test_y = data["test_y"]
 
         model = XGBRegressor(
             n_estimators=int(params.get("n_estimators", 100)),
